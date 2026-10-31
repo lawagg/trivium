@@ -25,6 +25,15 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 
+def setup_console() -> None:
+    """UTF-8 для stdout/stderr: консоль Windows иначе не переваривает кириллицу."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
+
 def _say(message: str) -> None:
     """Печать, безопасная для оконного исполняемого файла без консоли."""
     try:
@@ -77,6 +86,7 @@ def run_selftest() -> int:
 
 def main(argv=None) -> int:
     argv = list(sys.argv if argv is None else argv)
+    setup_console()
     if "--selftest" in argv:
         return run_selftest()
 

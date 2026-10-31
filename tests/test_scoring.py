@@ -9,6 +9,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# Консоль Windows (и CI-раннеры) может быть в однобайтовой кодировке:
+# без этого вывод кириллицы падает с UnicodeEncodeError.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trivium import scoring  # noqa: E402
