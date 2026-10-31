@@ -38,9 +38,16 @@ jobs:
         run: python -m PyInstaller --noconfirm --clean Trivium.spec
 
       - name: Проверка собранного файла
-        run: |
-          Start-Process -FilePath "dist\Trivium\Trivium.exe" -ArgumentList "--selftest" -Wait -PassThru | Select-Object ExitCode
         shell: pwsh
+        run: |
+          $exe = "dist\Trivium\Trivium.exe"
+          $p = Start-Process -FilePath $exe -ArgumentList "--selftest" -PassThru
+          if (-not $p.WaitForExit(90000)) {
+            $p.Kill()
+            throw "selftest не завершился за 90 секунд"
+          }
+          if ($p.ExitCode -ne 0) { throw "selftest вернул код $($p.ExitCode)" }
+          Write-Host "selftest: OK"
 
       # ── Подпись через SignPath ───────────────────────────────────────────
       # Включается после одобрения заявки в SignPath Foundation.
