@@ -92,7 +92,13 @@ jobs:
         run: bash build_macos.sh
 
       - name: Проверка архитектуры
-        run: lipo -archs "dist/Trivium.app/Contents/MacOS/Trivium"
+        run: |
+          archs=$(lipo -archs "dist/Trivium.app/Contents/MacOS/Trivium")
+          echo "архитектуры: $archs"
+          case "$archs" in
+            *x86_64*arm64*|*arm64*x86_64*) ;;
+            *) echo "сборка не универсальная"; exit 1 ;;
+          esac
 
       - name: Архив
         run: |
