@@ -1,0 +1,104 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Зависимости
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install PySide6 pyinstaller
+
+      - name: Тесты расчётов
+        run: python tests/test_scoring.py
+
+      - name: Проверка интерфейса без окна
+        run: python main.py --selftest
+
+      - name: Сборка
+        run: python -m PyInstaller --noconfirm --clean Trivium.spec
+
+      - name: Проверка собранного файла
+        run: |
+          Start-Process -FilePath "dist\Trivium\Trivium.exe" -ArgumentList "--selftest" -Wait -PassThru | Select-Object ExitCode
+        shell: pwsh
+
+      # ── Подпись через SignPath ───────────────────────────────────────────
+      # Включается после одобрения заявки в SignPath Foundation.
+      # Инструкция: docs/SIGNING.md
+      #
+      # - name: Отправить на подпись
+      #   uses: signpath/github-action-submit-signing-request@v1
+      #   with:
+      #     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+      #     organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+      #     project-slug: trivium
+      #     signing-policy-slug: release-signing
+      #     artifact-configuration-slug: exe
+      #     github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+      #     wait-for-completion: true
+      #     output-artifact-directory: signed
+
+      - name: Архив
+        run: Compress-Archive -Path "dist\Trivium\*" -DestinationPath "dist\Trivium-Windows.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Trivium-windows
+          path: dist/Trivium-Windows.zip
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Тесты расчётов
+        run: python tests/test_scoring.py
+
+      - name: Сборка
+        run: bash build_macos.sh
+
+      - name: Архив
+        run: |
+          cd dist
+          ditto -c -k --sequesterRsrc --keepParent Trivium.app Trivium-macos.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Trivium-macos
+          path: dist/Trivium-macos.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.zip
+          generate_release_notes: true

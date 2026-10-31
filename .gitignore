@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Сборка
+build/
+dist/
+*.spec.bak
+
+# Служебное
+.tools-output/
+*.log
+
+# Системное
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Редакторы
+.vscode/
+.idea/
+
+# Скриншоты служебных прогонов
+tools/shots/
+
+# Артефакты PyInstaller, если сборка шла в одну папку
+_internal/
