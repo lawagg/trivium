@@ -88,7 +88,7 @@ jobs:
       - name: Тесты расчётов
         run: python tests/test_scoring.py
 
-      - name: Сборка (universal2: Intel + Apple Silicon)
+      - name: "Сборка — universal2, Intel + Apple Silicon"
         run: bash build_macos.sh
 
       - name: Проверка архитектуры
