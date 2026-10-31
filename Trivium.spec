@@ -1,4 +1,4 @@
-# -*- mode: python ; coding: utf-8 -*-
+﻿# -*- mode: python ; coding: utf-8 -*-
 """Сборка «Тривиума».
 
 По умолчанию — папка (onedir): запускается сразу, ничего не распаковывает
@@ -17,6 +17,10 @@ from pathlib import Path
 ROOT = Path(SPECPATH)
 IS_MAC = sys.platform == "darwin"
 ONEFILE = os.environ.get("TRIVIUM_ONEFILE") == "1"
+# на macOS: собрать универсальный бандл (Intel + Apple Silicon).
+# Нужен universal2-интерпретатор Python — на CI он есть, локально обычно нет.
+UNIVERSAL2 = IS_MAC and os.environ.get("TRIVIUM_UNIVERSAL2") == "1"
+TARGET_ARCH = "universal2" if UNIVERSAL2 else None
 
 ICON = ROOT / "assets" / ("trivium.icns" if IS_MAC else "trivium.ico")
 ICON_ARG = str(ICON) if ICON.exists() else None
@@ -69,7 +73,7 @@ BUNDLE_INFO = {
     "CFBundleShortVersionString": "1.0.0",
     "CFBundleVersion": "1.0.0",
     "NSHighResolutionCapable": True,
-    "LSMinimumSystemVersion": "11.0",
+    "LSMinimumSystemVersion": "14.0",
 }
 
 if ONEFILE:
@@ -88,7 +92,7 @@ if ONEFILE:
         console=False,
         disable_windowed_traceback=False,
         argv_emulation=False,
-        target_arch=None,
+        target_arch=TARGET_ARCH,
         codesign_identity=None,
         entitlements_file=None,
         icon=ICON_ARG,
@@ -115,7 +119,7 @@ else:
         console=False,
         disable_windowed_traceback=False,
         argv_emulation=False,
-        target_arch=None,
+        target_arch=TARGET_ARCH,
         codesign_identity=None,
         entitlements_file=None,
         icon=ICON_ARG,

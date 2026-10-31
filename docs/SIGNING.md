@@ -36,22 +36,58 @@ SmartScreen, как правило, не появляется.
   а не загруженный вручную файл;
 * отсутствие коммерческого использования.
 
-### Порядок действий
+### Как подать заявку
 
-1. **Заявка.** Форма на https://signpath.org/ — описать проект: что делает,
-   что бесплатно, зачем подпись. Приложить ссылку на репозиторий.
-   Рассмотрение обычно занимает несколько дней.
-2. **После одобрения** — установить GitHub App «SignPath» на репозиторий.
-3. **Секреты репозитория** (Settings → Secrets and variables → Actions):
-   * `SIGNPATH_API_TOKEN` — токен из личного кабинета SignPath;
-   * `SIGNPATH_ORGANIZATION_ID` — идентификатор организации.
-4. **Настроить в кабинете SignPath** проект `trivium`, политику подписи
-   `release-signing` и конфигурацию артефакта `exe` (какие файлы подписывать).
-5. **Включить шаг в CI** — в [.github/workflows/build.yml](../.github/workflows/build.yml)
-   уже лежит закомментированный блок «Подпись через SignPath». После одобрения
-   нужно раскомментировать его и убедиться, что артефакт загружается до шага
-   подписи (в текущем виде архив собирается после сборки; порядок шагов
-   приведётся в соответствие с требованиями SignPath при настройке).
+1. Открыть **https://signpath.org/** и нажать «Apply for free signing»
+   (форма Foundation — заявка бесплатная).
+2. Заполнить поля. Ниже — готовые формулировки под этот проект:
+
+   **Project name:** Trivium
+
+   **Repository:** https://github.com/lawagg/trivium
+
+   **License:** MIT
+
+   **Short description:**
+   > Desktop app for comparative judging of two songs. Judges move comparison
+   > sliders for nine criteria, the app computes the result and shows a nine-axis
+   > radar plus a breakdown of which criteria each song won. Python + PySide6
+   > (Qt Quick), fully offline.
+
+   **Why do you need code signing?**
+   > The app is distributed as a portable Windows build to a small community of
+   > music judges. Unsigned binaries trigger SmartScreen, and users have no
+   > reliable way to verify the publisher. Signing removes that friction and
+   > gives a verifiable identity.
+
+   **Is the project commercial?**
+   > No. Free, no monetization, no paid tiers, no telemetry.
+
+   **How are releases built?**
+   > GitHub Actions workflow `.github/workflows/build.yml`. Windows build via
+   > PyInstaller is packed into `Trivium-Windows.zip`; artifacts are published
+   > on tag push through GitHub Releases.
+
+   **Release cadence:** по факту — по мере правок, обычно не чаще раза в месяц.
+
+3. Отправить и ждать ответа (обычно от нескольких дней до двух недель).
+   Заявку могут отклонить, если проект выглядит заброшенным или не имеет
+   истории — поэтому к моменту подачи лучше иметь пару релизов, README
+   со скриншотами и осмысленную историю коммитов.
+
+### После одобрения
+
+1. Установить GitHub App «SignPath» на репозиторий.
+2. Взять в личном кабинете **Organization ID** и выпустить **API token**.
+3. Добавить их в Settings → Secrets and variables → Actions:
+   `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_API_TOKEN`.
+4. В кабинете SignPath создать проект `trivium`, политику подписи
+   `release-signing` и конфигурацию артефакта `exe` (какие файлы подписывать:
+   сам `.exe` и ключевые `.dll`/`.pyd`).
+5. В [.github/workflows/build.yml](../.github/workflows/build.yml) раскомментировать
+   блок «Подпись через SignPath» и убедиться, что артефакт сначала загружается
+   как artifact, а подписанный — скачивается и попадает в релиз.
+6. Проверить подпись: правый клик по `.exe` → Свойства → «Цифровые подписи».
 
 ### Альтернатива
 
