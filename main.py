@@ -54,6 +54,7 @@ def run_selftest() -> int:
     from PySide6.QtQuickControls2 import QQuickStyle
 
     from trivium.bridge import JudgingBridge
+    from trivium.theme import Theme
 
     try:
         QQuickStyle.setStyle("Basic")
@@ -64,7 +65,9 @@ def run_selftest() -> int:
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "qml"))
     bridge = JudgingBridge()
+    theme = Theme()
     engine.rootContext().setContextProperty("bridge", bridge)
+    engine.rootContext().setContextProperty("theme", theme)
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "qml" / "Main.qml")))
 
     ok = bool(engine.rootObjects())
@@ -110,12 +113,15 @@ def main(argv=None) -> int:
     app.setApplicationDisplayName("Тривиум — система судейства")
 
     from trivium.bridge import JudgingBridge
+    from trivium.theme import Theme
 
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "qml"))
 
     bridge = JudgingBridge()
+    theme = Theme()
     engine.rootContext().setContextProperty("bridge", bridge)
+    engine.rootContext().setContextProperty("theme", theme)
 
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "qml" / "Main.qml")))
     if not engine.rootObjects():
@@ -132,7 +138,14 @@ def main(argv=None) -> int:
         except Exception:
             pass
 
-    return app.exec()
+    exit_code = app.exec()
+
+    # Сначала гасим QML-движок и только потом объекты контекста:
+    # иначе при закрытии окна привязки читают уже удалённые theme/bridge.
+    del engine
+    del bridge
+    del theme
+    return exit_code
 
 
 if __name__ == "__main__":

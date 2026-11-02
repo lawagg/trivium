@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Что песня забрала у оппонента: имя трека + список критериев.
 // Никаких баллов — только факт превосходства.
@@ -8,7 +7,7 @@ Item {
 
     property string trackName: ""
     property var items: []
-    property color accent: P.textDim
+    property color accent: theme.textDim
 
     implicitHeight: column.height
 
@@ -28,7 +27,7 @@ Item {
 
         Text {
             text: "СИЛЬНЕЕ ОППОНЕНТА"
-            color: P.textMute
+            color: theme.textMute
             font.pixelSize: 9
             font.letterSpacing: 2
             font.bold: true
@@ -40,7 +39,7 @@ Item {
             delegate: Text {
                 width: column.width
                 text: modelData && modelData.label ? modelData.label : ""
-                color: P.textDim
+                color: theme.textDim
                 font.pixelSize: 11
                 elide: Text.ElideRight
             }
@@ -49,7 +48,7 @@ Item {
         Text {
             visible: !list.items || list.items.length === 0
             text: "ничего не забрала"
-            color: P.textMute
+            color: theme.textMute
             font.pixelSize: 10
         }
     }

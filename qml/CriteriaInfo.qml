@@ -1,6 +1,5 @@
 ﻿import QtQuick
 import QtQuick.Controls
-import "Palette.js" as P
 
 // Пояснение к критериям открытого блока.
 // Геометрию задаёт Main: колонка слева (side) или полоса сверху (top).
@@ -20,8 +19,8 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: P.surface
-        border.color: P.line
+        color: theme.surface
+        border.color: theme.line
         border.width: 1
         radius: 4
     }
@@ -40,7 +39,7 @@ Item {
             Text {
                 id: caption
                 text: "ЧТО ЗНАЧИТ КРИТЕРИЙ"
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 9
                 font.letterSpacing: 3
                 font.bold: true
@@ -51,7 +50,7 @@ Item {
                 anchors.top: caption.bottom
                 anchors.topMargin: 6
                 text: info.blockData && info.blockData.title ? info.blockData.title.toUpperCase() : ""
-                color: P.accent
+                color: theme.accent
                 font.pixelSize: 12
                 font.letterSpacing: 3
                 font.bold: true
@@ -66,7 +65,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "\u00d7"
-                    color: closeArea.containsMouse ? P.text : P.textMute
+                    color: closeArea.containsMouse ? theme.text : theme.textMute
                     font.pixelSize: 18
                 }
 
@@ -110,8 +109,8 @@ Item {
                             Text {
                                 width: parent.width
                                 text: critBlock.crit && critBlock.crit.label ? critBlock.crit.label : ""
-                                color: P.text
-                                font.pixelSize: 13
+                                color: theme.text
+                                font.pixelSize: 14
                                 font.letterSpacing: 1
                                 font.bold: true
                             }
@@ -119,9 +118,10 @@ Item {
                             Text {
                                 width: parent.width
                                 text: critBlock.crit && critBlock.crit.desc ? critBlock.crit.desc.intro : ""
-                                color: P.textDim
-                                font.pixelSize: 11
-                                lineHeight: 1.45
+                                color: theme.textDim
+                                font.pixelSize: 12
+                                lineHeight: 1.5
+                                horizontalAlignment: width > 340 ? Text.AlignJustify : Text.AlignLeft
                                 wrapMode: Text.WordWrap
                             }
 
@@ -138,8 +138,8 @@ Item {
                                     Text {
                                         width: parent.width
                                         text: section.sec ? section.sec.title + ":" : ""
-                                        color: P.textDim
-                                        font.pixelSize: 10
+                                        color: theme.textDim
+                                        font.pixelSize: 11
                                         font.bold: true
                                     }
 
@@ -150,9 +150,10 @@ Item {
                                             width: section.width
                                             textFormat: Text.RichText
                                             text: "— <b>" + modelData.title + ":</b> " + modelData.text
-                                            color: P.textMute
-                                            font.pixelSize: 11
-                                            lineHeight: 1.45
+                                            color: theme.textMute
+                                            font.pixelSize: 12
+                                            lineHeight: 1.5
+                                            horizontalAlignment: width > 340 ? Text.AlignJustify : Text.AlignLeft
                                             wrapMode: Text.WordWrap
                                         }
                                     }

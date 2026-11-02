@@ -28,3 +28,6 @@ tools/shots/
 
 # Артефакты PyInstaller, если сборка шла в одну папку
 _internal/
+
+# Локальные превью
+tools/preview/

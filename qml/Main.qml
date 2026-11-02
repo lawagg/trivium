@@ -1,7 +1,7 @@
 ﻿import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
-import "Palette.js" as P
 
 Window {
     id: win
@@ -11,7 +11,7 @@ Window {
     height: 880
     minimumWidth: 900
     minimumHeight: 700
-    color: P.bg
+    color: theme.bg
     title: "Тривиум — система судейства"
 
     // --- Описание формы (из Python) --------------------------------------
@@ -43,6 +43,21 @@ Window {
     property bool helpOpen: false
     property bool infoHidden: false
     property string pendingAction: ""
+
+    // --- Сохранение скриншотов -------------------------------------------
+    property bool capturing: false
+    property bool saving: false
+    property string saveDir: ""
+    property string saveStatus: ""
+    property string savePrefix: ""
+    property int saveIndex: 0
+    property bool saveOpened: false
+    readonly property var saveBlocks: [
+        { "v": 1, "title": "Разум" },
+        { "v": 2, "title": "Тело" },
+        { "v": 3, "title": "Душа" },
+        { "v": 0, "title": "Арт" }
+    ]
 
     // показывать ли пояснения к критериям
     readonly property bool showInfo: win.activeBlock >= 0 && !win.infoHidden
@@ -187,6 +202,105 @@ Window {
         }
     }
 
+    // --- Скриншоты результата --------------------------------------------
+    function cleanName(text) {
+        var t = (text || "").replace(/\s+/g, " ").trim()
+        if (t.length === 0)
+            return "трек"
+        t = t.replace(/[\\/:*?"<>|]/g, "-")
+        return t.length > 40 ? t.substring(0, 40).trim() : t
+    }
+
+    function targetUrl(title) {
+        var base = String(win.saveDir)
+        if (base.charAt(base.length - 1) === "/")
+            base = base.slice(0, -1)
+        return base + "/" + encodeURIComponent(win.savePrefix + " — " + title + ".jpg")
+    }
+
+    function beginSave() {
+        if (!win.hasResult || win.saving)
+            return
+        win.savePrefix = cleanName(win.nameA) + " vs " + cleanName(win.nameB)
+        win.saveIndex = 0
+        win.saveOpened = false
+        win.saving = true
+        win.capturing = true
+        win.saveStatus = "сохраняю…"
+        win.activeBlock = -1
+        win.panelShown = false
+        saveTimer.interval = 300
+        saveTimer.restart()
+    }
+
+    function saveTick() {
+        if (win.saveIndex >= win.saveBlocks.length) {
+            win.endSave()
+            return
+        }
+        var block = win.saveBlocks[win.saveIndex]
+        if (!win.saveOpened) {
+            win.panelData = win.blockDataForKey(win.vertexKeys[block.v])
+            win.activeBlock = block.v
+            win.panelShown = true
+            win.saveOpened = true
+            saveTimer.interval = 950
+            saveTimer.restart()
+            return
+        }
+        stageHost.grabToImage(function (res) {
+            res.saveToFile(win.targetUrl(block.title))
+        })
+        win.saveOpened = false
+        win.saveIndex++
+        saveTimer.interval = 300
+        saveTimer.restart()
+    }
+
+    function endSave() {
+        win.activeBlock = -1
+        win.panelShown = false
+        win.capturing = false
+        resultSaveTimer.restart()
+    }
+
+    function saveResultShot() {
+        resultView.grabToImage(function (res) {
+            res.saveToFile(win.targetUrl("результат"))
+        })
+        win.saving = false
+        win.saveStatus = "сохранено в выбранную папку: " + (win.saveBlocks.length + 1) + " файлов"
+        statusTimer.restart()
+    }
+
+    Timer {
+        id: saveTimer
+        repeat: false
+        onTriggered: win.saveTick()
+    }
+
+    Timer {
+        id: resultSaveTimer
+        interval: 700
+        onTriggered: win.saveResultShot()
+    }
+
+    Timer {
+        id: statusTimer
+        interval: 7000
+        onTriggered: win.saveStatus = ""
+    }
+
+    FolderDialog {
+        id: folderDialog
+        title: "Куда сохранить скриншоты"
+        Component.onCompleted: currentFolder = bridge.saveDir()
+        onAccepted: {
+            win.saveDir = folderDialog.selectedFolder.toString()
+            win.beginSave()
+        }
+    }
+
     // --- Раскладка -------------------------------------------------------
     ColumnLayout {
         anchors.fill: parent
@@ -195,15 +309,49 @@ Window {
 
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 22
+            Layout.preferredHeight: 26
 
             Text {
                 anchors.centerIn: parent
                 text: "ТРИВИУМ"
-                color: P.accent
+                color: theme.accent
                 font.pixelSize: 13
                 font.letterSpacing: 8
                 font.bold: true
+            }
+
+            Item {
+                id: themeToggle
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: themeToggleText.width + 22
+                height: 24
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "transparent"
+                    radius: 3
+                    border.width: 1
+                    border.color: themeArea.containsMouse ? theme.accent : theme.line
+                    Behavior on border.color { ColorAnimation { duration: 140 } }
+                }
+
+                Text {
+                    id: themeToggleText
+                    anchors.centerIn: parent
+                    text: theme.dark ? "СВЕТЛАЯ ТЕМА" : "ТЁМНАЯ ТЕМА"
+                    color: themeArea.containsMouse ? theme.accent : theme.textMute
+                    font.pixelSize: 9
+                    font.letterSpacing: 2
+                }
+
+                MouseArea {
+                    id: themeArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: theme.toggle()
+                }
             }
         }
 
@@ -215,7 +363,7 @@ Window {
             SongCard {
                 objectName: "cardA"
                 Layout.fillWidth: true
-                accent: P.sideA
+                accent: theme.sideA
                 caption: "ПЕСНЯ 1"
                 placeholder: "Никнейм исполнителя"
                 gen: win.gen
@@ -233,7 +381,7 @@ Window {
 
             Text {
                 text: "VS"
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 10
                 font.letterSpacing: 2
                 Layout.alignment: Qt.AlignTop
@@ -243,7 +391,7 @@ Window {
             SongCard {
                 objectName: "cardB"
                 Layout.fillWidth: true
-                accent: P.sideB
+                accent: theme.sideB
                 caption: "ПЕСНЯ 2"
                 placeholder: "Никнейм исполнителя"
                 gen: win.gen
@@ -275,7 +423,7 @@ Window {
                                           : (win.result.winner === "A" ? "ПОБЕДИТЕЛЬ" : "ПРОИГРАВШИЙ"))
                 nameText: win.hasResult ? win.result.name_a : "—"
                 ovText: win.hasResult ? win.result.ov_a : "—"
-                accent: P.sideA
+                accent: theme.sideA
                 muted: !win.hasResult || win.result.winner !== "A"
             }
 
@@ -287,7 +435,7 @@ Window {
                                           : (win.result.winner === "B" ? "ПОБЕДИТЕЛЬ" : "ПРОИГРАВШИЙ"))
                 nameText: win.hasResult ? win.result.name_b : "—"
                 ovText: win.hasResult ? win.result.ov_b : "—"
-                accent: P.sideB
+                accent: theme.sideB
                 muted: !win.hasResult || win.result.winner !== "B"
             }
         }
@@ -298,7 +446,15 @@ Window {
             Layout.fillHeight: true
             clip: true
 
-            readonly property int panelW: Math.min(720, Math.max(460, Math.round(width * 0.5)))
+            // плотный фон: без него скриншот сцены сохраняется с прозрачностью,
+            // а в JPEG прозрачное становится чёрным
+            Rectangle {
+                anchors.fill: parent
+                color: theme.bg
+                z: -1000
+            }
+
+            readonly property int panelW: Math.min(680, Math.max(460, Math.round(width * 0.46)))
             readonly property int panelRows: win.panelData && win.panelData.criteria ? win.panelData.criteria.length : 3
             readonly property int panelH: 84 + panelRows * 74 + 16
             readonly property int panelX: width - panelW - 20
@@ -363,7 +519,7 @@ Window {
                 y: stageHost.dockY - 0.5
                 width: Math.max(0, stageHost.panelX - stageHost.dockX)
                 height: 1
-                color: P.accent
+                color: theme.accent
                 opacity: win.activeBlock >= 0 && win.panelShown ? 0.45 : 0.0
                 Behavior on opacity { NumberAnimation { duration: 220 } }
             }
@@ -399,7 +555,7 @@ Window {
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 8
                 text: "нажмите на вершину — из неё раскроется блок"
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 10
                 font.letterSpacing: 1
                 opacity: win.activeBlock < 0 && !win.helpOpen && !win.hasResult ? 0.8 : 0.0
@@ -407,10 +563,12 @@ Window {
             }
 
             ResultView {
+                id: resultView
                 anchors.fill: parent
+                visible: win.hasResult && !win.capturing
                 result: win.result
-                colorA: P.sideA
-                colorB: P.sideB
+                colorA: theme.sideA
+                colorB: theme.sideB
             }
         }
 
@@ -420,7 +578,7 @@ Window {
 
             Text {
                 text: "Разработчик: Lawanda"
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 10
                 font.letterSpacing: 1
             }
@@ -444,6 +602,21 @@ Window {
             }
 
             Item { Layout.fillWidth: true }
+
+            Text {
+                text: win.saveStatus
+                color: theme.textMute
+                font.pixelSize: 10
+                visible: text.length > 0
+            }
+
+            FlatButton {
+                text: win.saving ? "Сохранение…" : "Сохранить"
+                visible: win.hasResult
+                enabled: !win.saving
+                implicitWidth: 150
+                onClicked: folderDialog.open()
+            }
 
             FlatButton {
                 text: "Как судить?"
@@ -482,9 +655,9 @@ Window {
         closePolicy: Popup.CloseOnEscape
 
         background: Rectangle {
-            color: P.surfaceHi
+            color: theme.surfaceHi
             radius: 4
-            border.color: P.line
+            border.color: theme.line
             border.width: 1
         }
 
@@ -494,7 +667,7 @@ Window {
 
             Text {
                 text: win.pendingAction === "result" ? "ПОКАЗАТЬ РЕЗУЛЬТАТ?" : "СБРОСИТЬ ФОРМУ?"
-                color: P.text
+                color: theme.text
                 font.pixelSize: 13
                 font.letterSpacing: 3
                 font.bold: true
@@ -505,7 +678,7 @@ Window {
                 text: win.pendingAction === "result"
                       ? "Блок свернётся, будут показаны победитель и проигравший с оценками за общее впечатление."
                       : "Все фейдеры, никнеймы и оценки ОВ будут очищены. Отменить это нельзя."
-                color: P.textDim
+                color: theme.textDim
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 lineHeight: 1.3

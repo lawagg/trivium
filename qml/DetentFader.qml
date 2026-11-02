@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Фейдер сравнения двух песен.
 // value = -1 — крайне левое положение (сильнее песня 1),
@@ -10,8 +9,8 @@ Item {
     id: root
 
     property real value: 0.0
-    property color leftColor: P.sideA
-    property color rightColor: P.sideB
+    property color leftColor: theme.sideA
+    property color rightColor: theme.sideB
 
     signal moved(real pos)
 
@@ -39,7 +38,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         width: root.width
         height: 2
-        color: P.line
+        color: theme.line
     }
 
     // заливка от центра к активной стороне
@@ -59,7 +58,7 @@ Item {
         x: root.midX - 0.5
         width: 1
         height: 10
-        color: root.centered ? P.textDim : P.line
+        color: root.centered ? theme.textDim : theme.line
     }
 
     // ручка
@@ -69,7 +68,7 @@ Item {
         width: root.handleSize
         height: root.handleSize
         radius: root.handleSize / 2
-        color: root.centered ? P.textDim : P.text
+        color: root.centered ? theme.textDim : theme.text
         border.width: root.centered ? 0 : 3
         border.color: root.activeColor
         Behavior on color { ColorAnimation { duration: 120 } }

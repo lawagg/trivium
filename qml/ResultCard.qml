@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Поле результата: «Победитель и его ОВ» / «Проигравший и его ОВ».
 Rectangle {
@@ -8,13 +7,13 @@ Rectangle {
     property string title: "ПОБЕДИТЕЛЬ"
     property string nameText: "—"
     property string ovText: "—"
-    property color accent: P.accent
+    property color accent: theme.accent
     property bool muted: false
 
     implicitHeight: 92
     radius: 4
-    color: P.surface
-    border.color: P.line
+    color: theme.surface
+    border.color: theme.line
     border.width: 1
 
     Rectangle {
@@ -30,7 +29,7 @@ Rectangle {
         x: 20
         y: 16
         text: card.title
-        color: card.muted ? P.textMute : card.accent
+        color: card.muted ? theme.textMute : card.accent
         font.pixelSize: 9
         font.letterSpacing: 3
         font.bold: true
@@ -41,7 +40,7 @@ Rectangle {
         y: 33
         width: parent.width - 40
         text: card.nameText
-        color: P.text
+        color: theme.text
         font.pixelSize: 18
         font.bold: true
         elide: Text.ElideRight
@@ -51,7 +50,7 @@ Rectangle {
         x: 20
         y: 62
         text: "ОВ " + card.ovText
-        color: P.textDim
+        color: theme.textDim
         font.pixelSize: 11
         font.letterSpacing: 1
     }

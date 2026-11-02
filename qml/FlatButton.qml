@@ -1,6 +1,5 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
-import "Palette.js" as P
 
 // Кнопка в общем стиле системы.
 Button {
@@ -17,11 +16,11 @@ Button {
     background: Rectangle {
         radius: 3
         color: control.primary
-               ? (control.down ? Qt.darker(P.accent, 1.18) : P.accent)
-               : (control.hovered ? P.surfaceHi : "transparent")
+               ? (control.down ? Qt.darker(theme.accent, 1.18) : theme.accent)
+               : (control.hovered ? theme.surfaceHi : "transparent")
         border.color: control.primary
-                      ? P.accent
-                      : (control.hovered ? P.textMute : P.line)
+                      ? theme.accent
+                      : (control.hovered ? theme.textMute : theme.line)
         border.width: 1
         Behavior on color { ColorAnimation { duration: 120 } }
     }
@@ -29,7 +28,7 @@ Button {
     contentItem: Text {
         id: labelText
         text: control.text ? control.text.toUpperCase() : ""
-        color: control.primary ? P.bg : (control.hovered ? P.text : P.textDim)
+        color: control.primary ? theme.bg : (control.hovered ? theme.text : theme.textDim)
         font: control.font
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

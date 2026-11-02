@@ -1,6 +1,5 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
-import "Palette.js" as P
 
 // Справка «Как судить?»: алгоритм судейства из ТЗ.
 // Раскрывается справа так же, как панель блока.
@@ -25,8 +24,8 @@ Item {
     Rectangle {
         width: help.fullWidth
         height: help.fullHeight
-        color: P.surface
-        border.color: P.line
+        color: theme.surface
+        border.color: theme.line
         border.width: 1
         radius: 4
     }
@@ -42,7 +41,7 @@ Item {
             x: 28
             y: 24
             text: "АЛГОРИТМ СУДЕЙСТВА"
-            color: P.text
+            color: theme.text
             font.pixelSize: 15
             font.letterSpacing: 5
             font.bold: true
@@ -52,7 +51,7 @@ Item {
             x: 28
             y: 46
             text: "как пользоваться формой"
-            color: P.textMute
+            color: theme.textMute
             font.pixelSize: 11
             font.letterSpacing: 1
         }
@@ -62,7 +61,7 @@ Item {
             y: 68
             width: help.fullWidth - 56
             height: 1
-            color: P.line
+            color: theme.line
             opacity: 0.7
         }
 
@@ -75,7 +74,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "\u00d7"
-                color: closeArea.containsMouse ? P.text : P.textMute
+                color: closeArea.containsMouse ? theme.text : theme.textMute
                 font.pixelSize: 20
             }
 
@@ -121,15 +120,15 @@ Item {
                             Text {
                                 text: section.sec && section.sec.num && section.sec.num.length > 0
                                       ? section.sec.num + "." : ""
-                                color: P.accent
+                                color: theme.accent
                                 font.pixelSize: 12
                                 font.bold: true
                             }
 
                             Text {
                                 text: section.sec ? section.sec.title : ""
-                                color: P.text
-                                font.pixelSize: 12
+                                color: theme.text
+                                font.pixelSize: 13
                                 font.letterSpacing: 2
                                 font.bold: true
                             }
@@ -142,11 +141,12 @@ Item {
                                 width: section.width
                                 topPadding: modelData.h === true ? 4 : 0
                                 text: modelData.text
-                                color: modelData.h === true ? P.textDim : P.textMute
-                                font.pixelSize: modelData.h === true ? 10 : 11
+                                color: modelData.h === true ? theme.textDim : theme.textMute
+                                font.pixelSize: modelData.h === true ? 11 : 12
                                 font.bold: modelData.h === true
                                 font.letterSpacing: modelData.h === true ? 2 : 0
-                                lineHeight: 1.4
+                                lineHeight: 1.5
+                                horizontalAlignment: width > 340 ? Text.AlignJustify : Text.AlignLeft
                                 wrapMode: Text.WordWrap
                             }
                         }

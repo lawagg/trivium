@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Панель блока судейства. Разворачивается из вершины тетраэдра:
 // левый край закреплён в точке стыковки, ширина растёт от нуля вправо.
@@ -30,8 +29,8 @@ Item {
     Rectangle {
         width: panel.fullWidth
         height: panel.fullHeight
-        color: P.surface
-        border.color: P.line
+        color: theme.surface
+        border.color: theme.line
         border.width: 1
         radius: 4
     }
@@ -50,7 +49,7 @@ Item {
             x: 28
             y: 24
             text: panel.blockData && panel.blockData.title ? panel.blockData.title.toUpperCase() : ""
-            color: P.text
+            color: theme.text
             font.pixelSize: 15
             font.letterSpacing: 5
             font.bold: true
@@ -60,7 +59,7 @@ Item {
             x: 28
             y: 46
             text: panel.blockData && panel.blockData.subtitle ? panel.blockData.subtitle : ""
-            color: P.textMute
+            color: theme.textMute
             font.pixelSize: 11
             font.letterSpacing: 1
         }
@@ -72,21 +71,21 @@ Item {
             spacing: 8
             visible: panel.fullWidth >= 620
 
-            Rectangle { width: 6; height: 6; radius: 3; color: P.sideA; y: 4 }
+            Rectangle { width: 6; height: 6; radius: 3; color: theme.sideA; y: 4 }
             Text {
                 text: "песня 1"
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 10
                 font.letterSpacing: 1
             }
-            Text { text: "←→"; color: P.textMute; font.pixelSize: 10 }
+            Text { text: "←→"; color: theme.textMute; font.pixelSize: 10 }
             Text {
                 text: "песня 2"
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 10
                 font.letterSpacing: 1
             }
-            Rectangle { width: 6; height: 6; radius: 3; color: P.sideB; y: 4 }
+            Rectangle { width: 6; height: 6; radius: 3; color: theme.sideB; y: 4 }
         }
 
         Rectangle {
@@ -94,7 +93,7 @@ Item {
             y: 68
             width: panel.fullWidth - 56
             height: 1
-            color: P.line
+            color: theme.line
             opacity: 0.7
         }
 
@@ -108,7 +107,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "\u00d7"
-                color: closeArea.containsMouse ? P.text : P.textMute
+                color: closeArea.containsMouse ? theme.text : theme.textMute
                 font.pixelSize: 20
             }
 
@@ -131,7 +130,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "?"
-                color: infoArea.containsMouse ? P.text : (panel.infoVisible ? P.accent : P.textMute)
+                color: infoArea.containsMouse ? theme.text : (panel.infoVisible ? theme.accent : theme.textMute)
                 font.pixelSize: 15
                 font.bold: true
             }
@@ -167,7 +166,7 @@ Item {
                         anchors.left: parent.left
                         anchors.top: parent.top
                         text: row.crit && row.crit.label ? row.crit.label : ""
-                        color: P.textDim
+                        color: theme.textDim
                         font.pixelSize: 13
                         font.letterSpacing: 1
                     }
@@ -180,8 +179,8 @@ Item {
                         anchors.topMargin: 26
                         height: 32
                         value: 0
-                        leftColor: P.sideA
-                        rightColor: P.sideB
+                        leftColor: theme.sideA
+                        rightColor: theme.sideB
                         onMoved: (v) => panel.faderMoved(row.crit.key, v)
                     }
                 }

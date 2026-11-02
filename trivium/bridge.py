@@ -38,3 +38,18 @@ class JudgingBridge(QObject):
                 {"ok": False, "error": f"Ошибка расчёта: {exc}"},
                 ensure_ascii=False,
             )
+
+    @Slot(result=str)
+    def saveDir(self) -> str:
+        """Папка по умолчанию для сохранения скриншотов (url)."""
+        from pathlib import Path
+
+        from PySide6.QtCore import QStandardPaths, QUrl
+
+        try:
+            path = QStandardPaths.writableLocation(QStandardPaths.PicturesLocation)
+        except Exception:
+            path = ""
+        if not path:
+            path = str(Path.home())
+        return QUrl.fromLocalFile(path).toString()

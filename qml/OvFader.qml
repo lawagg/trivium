@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Фейдер «Общее впечатление»: единственный, у которого есть числовая шкала,
 // риски и чёрточки (ТЗ, п. 1 «Реализация»).
@@ -9,7 +8,7 @@ Item {
     property int value: 0
     property int from: 0
     property int to: 10
-    property color accent: P.accent
+    property color accent: theme.accent
 
     signal changed(int value)
 
@@ -40,7 +39,7 @@ Item {
         y: 10
         width: root.width
         height: 2
-        color: P.line
+        color: theme.line
     }
 
     Rectangle {
@@ -64,7 +63,7 @@ Item {
                 width: 1
                 height: 5
                 y: 15
-                color: index === root.value ? root.accent : P.line
+                color: index === root.value ? root.accent : theme.line
             }
             Text {
                 y: 24
@@ -72,7 +71,7 @@ Item {
                 width: 28
                 horizontalAlignment: Text.AlignHCenter
                 text: root.from + index
-                color: index === root.value ? root.accent : P.textMute
+                color: index === root.value ? root.accent : theme.textMute
                 font.pixelSize: 10
             }
         }
@@ -84,7 +83,7 @@ Item {
         width: root.handleSize
         height: root.handleSize
         radius: 2
-        color: P.text
+        color: theme.text
         border.color: root.accent
         border.width: 2
     }

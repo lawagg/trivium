@@ -1,6 +1,5 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Shapes
-import "Palette.js" as P
 
 // Иконка-ссылка. kind: "vk" | "mail" | "tg"
 Item {
@@ -17,8 +16,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: width / 2
-        color: area.containsMouse ? P.surfaceHi : "transparent"
-        border.color: area.containsMouse ? P.accent : P.line
+        color: area.containsMouse ? theme.surfaceHi : "transparent"
+        border.color: area.containsMouse ? theme.accent : theme.line
         border.width: 1
         Behavior on border.color { ColorAnimation { duration: 140 } }
     }
@@ -28,7 +27,7 @@ Item {
         visible: link.kind === "vk"
         anchors.centerIn: parent
         text: "VK"
-        color: area.containsMouse ? P.accent : P.textDim
+        color: area.containsMouse ? theme.accent : theme.textDim
         font.pixelSize: 9
         font.bold: true
         font.letterSpacing: 0.5
@@ -42,7 +41,7 @@ Item {
         height: 22
 
         ShapePath {
-            strokeColor: area.containsMouse ? P.accent : P.textDim
+            strokeColor: area.containsMouse ? theme.accent : theme.textDim
             strokeWidth: 1
             fillColor: "transparent"
             startX: 6
@@ -54,7 +53,7 @@ Item {
         }
 
         ShapePath {
-            strokeColor: area.containsMouse ? P.accent : P.textDim
+            strokeColor: area.containsMouse ? theme.accent : theme.textDim
             strokeWidth: 1
             fillColor: "transparent"
             startX: 6
@@ -73,7 +72,7 @@ Item {
 
         ShapePath {
             strokeColor: "transparent"
-            fillColor: area.containsMouse ? P.accent : P.textDim
+            fillColor: area.containsMouse ? theme.accent : theme.textDim
             startX: 5
             startY: 11
             PathLine { x: 17; y: 5 }

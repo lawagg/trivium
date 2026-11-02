@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Сцена «Тривиум»: тетраэдр, спроецированный вручную.
 //
@@ -167,7 +166,7 @@ Item {
             height: width
             radius: width / 2
             color: "transparent"
-            border.color: P.lineSoft
+            border.color: theme.lineSoft
             border.width: 1
         }
 
@@ -177,7 +176,7 @@ Item {
             height: width
             radius: width / 2
             color: "transparent"
-            border.color: P.lineSoft
+            border.color: theme.lineSoft
             border.width: 1
             opacity: 0.7
         }
@@ -199,7 +198,7 @@ Item {
             height: 1
             transformOrigin: Item.Left
             rotation: Math.atan2(pb.y - pa.y, pb.x - pa.x) / Math.PI * 180
-            color: P.text
+            color: theme.text
             opacity: stage.depthOpacity((pa.f + pb.f) / 2) * 0.46
             antialiasing: true
             z: -100 + (pa.f + pb.f)
@@ -230,7 +229,7 @@ Item {
                 width: 34 * node.f
                 height: width
                 radius: width / 2
-                color: P.accent
+                color: theme.accent
                 opacity: node.isActive ? 0.12 : (node.isHovered ? 0.09 : 0.0)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }
@@ -243,8 +242,8 @@ Item {
                 radius: width / 2
                 color: "transparent"
                 border.width: 1
-                border.color: node.isActive ? P.accent
-                                            : (node.isHovered ? P.text : "#62627A")
+                border.color: node.isActive ? theme.accent
+                                            : (node.isHovered ? theme.text : theme.vertexRing)
                 Behavior on width { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
                 Behavior on border.color { ColorAnimation { duration: 180 } }
             }
@@ -255,7 +254,7 @@ Item {
                 width: node.isActive ? 9 : 8 * node.f
                 height: width
                 radius: width / 2
-                color: node.isActive ? P.accent : P.text
+                color: node.isActive ? theme.accent : theme.text
                 opacity: node.isActive ? 1.0 : stage.depthOpacity(node.f)
                 Behavior on width { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
             }
@@ -266,7 +265,7 @@ Item {
                 anchors.top: parent.verticalCenter
                 anchors.topMargin: node.isActive ? 24 : 17 * node.f
                 text: stage.labels[index] ? stage.labels[index] : ""
-                color: node.isActive ? P.accent : (node.isHovered ? P.text : P.textDim)
+                color: node.isActive ? theme.accent : (node.isHovered ? theme.text : theme.textDim)
                 font.pixelSize: node.isActive ? 12 : 11
                 font.letterSpacing: 3
                 font.bold: node.isActive

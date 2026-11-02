@@ -1,13 +1,12 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "Palette.js" as P
 
 // Карточка песни: никнейм + стрелка вниз для ОВ.
 Rectangle {
     id: card
 
-    property color accent: P.sideA
+    property color accent: theme.sideA
     property string caption: "ПЕСНЯ 1"
     property string placeholder: "Никнейм исполнителя"
     property int ov: -1
@@ -19,8 +18,8 @@ Rectangle {
 
     height: 98
     radius: 4
-    color: P.surface
-    border.color: P.line
+    color: theme.surface
+    border.color: theme.line
     border.width: 1
 
     onGenChanged: {
@@ -45,10 +44,10 @@ Rectangle {
         width: card.width - 28
         height: 34
         placeholderText: card.placeholder
-        color: P.text
+        color: theme.text
         font.pixelSize: 16
         selectByMouse: true
-        placeholderTextColor: P.textMute
+        placeholderTextColor: theme.textMute
         leftPadding: 2
         background: Rectangle { color: "transparent" }
         onTextEdited: card.nameEdited(text)
@@ -59,7 +58,7 @@ Rectangle {
         y: 62
         width: card.width - 32
         height: 1
-        color: field.activeFocus ? card.accent : P.line
+        color: field.activeFocus ? card.accent : theme.line
         Behavior on color { ColorAnimation { duration: 150 } }
     }
 
@@ -72,7 +71,7 @@ Rectangle {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: card.ov < 0 ? "\u25be  ОВ  —" : "\u25be  ОВ  " + card.ov
-            color: ovArea.containsMouse ? card.accent : P.textDim
+            color: ovArea.containsMouse ? card.accent : theme.textDim
             font.pixelSize: 11
             font.letterSpacing: 1
         }
@@ -92,7 +91,7 @@ Rectangle {
         height: 26
         verticalAlignment: Text.AlignVCenter
         text: "общее впечатление"
-        color: P.textMute
+        color: theme.textMute
         font.pixelSize: 10
     }
 
@@ -106,9 +105,9 @@ Rectangle {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         background: Rectangle {
-            color: P.surfaceHi
+            color: theme.surfaceHi
             radius: 4
-            border.color: P.line
+            border.color: theme.line
             border.width: 1
         }
 
@@ -118,7 +117,7 @@ Rectangle {
 
             Text {
                 text: "ОБЩЕЕ ВПЕЧАТЛЕНИЕ"
-                color: P.text
+                color: theme.text
                 font.pixelSize: 11
                 font.letterSpacing: 3
                 font.bold: true
@@ -126,7 +125,7 @@ Rectangle {
 
             Text {
                 text: "0–10, шаг 1. На победителя не влияет, кроме ничейного исхода."
-                color: P.textMute
+                color: theme.textMute
                 font.pixelSize: 10
                 width: parent.width
                 wrapMode: Text.WordWrap

@@ -16,6 +16,7 @@ from PySide6.QtQml import QQmlApplicationEngine  # noqa: E402
 from PySide6.QtQuickControls2 import QQuickStyle  # noqa: E402
 
 from trivium.bridge import JudgingBridge  # noqa: E402
+from trivium.theme import Theme  # noqa: E402
 
 QQuickStyle.setStyle("Basic")
 
@@ -23,7 +24,9 @@ app = QGuiApplication(sys.argv)
 engine = QQmlApplicationEngine()
 engine.addImportPath(str(BASE / "qml"))
 bridge = JudgingBridge()
+theme = Theme()
 engine.rootContext().setContextProperty("bridge", bridge)
+engine.rootContext().setContextProperty("theme", theme)
 engine.rootContext().setContextProperty("quick3dAvailable", False)
 
 engine.load(QUrl.fromLocalFile(str(BASE / "qml" / "Main.qml")))

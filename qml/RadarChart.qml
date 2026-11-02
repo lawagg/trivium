@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Радар: 9 критериев, две песни контурами без заливки.
 // Оси идут в фиксированном порядке, подписи — вокруг.
@@ -10,8 +9,8 @@ Item {
     property var valuesA: []
     property var valuesB: []
     property real maxValue: 12
-    property color colorA: P.sideA
-    property color colorB: P.sideB
+    property color colorA: theme.sideA
+    property color colorB: theme.sideB
     property bool winnerIsA: true
     // при ничьей второй контур рисуем пунктиром, иначе один скрывает другой
     property bool drawCase: false
@@ -90,7 +89,7 @@ Item {
         delegate: Seg {
             p1: modelData.p1
             p2: modelData.p2
-            segColor: P.text
+            segColor: theme.text
             opacity: 0.10
         }
     }
@@ -101,7 +100,7 @@ Item {
         delegate: Seg {
             p1: modelData.p1
             p2: modelData.p2
-            segColor: P.text
+            segColor: theme.text
             opacity: 0.16
         }
     }
@@ -181,7 +180,7 @@ Item {
             width: 92
             horizontalAlignment: Text.AlignHCenter
             text: modelData
-            color: P.textMute
+            color: theme.textMute
             font.pixelSize: 9
             font.letterSpacing: 0.5
             elide: Text.ElideRight

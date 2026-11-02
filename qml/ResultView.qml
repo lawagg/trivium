@@ -1,5 +1,4 @@
-import QtQuick
-import "Palette.js" as P
+﻿import QtQuick
 
 // Экран результата: радар по девяти критериям, списки того,
 // что каждая песня забрала у оппонента, и короткий вердикт.
@@ -8,8 +7,8 @@ Item {
     id: view
 
     property var result: null
-    property color colorA: P.sideA
-    property color colorB: P.sideB
+    property color colorA: theme.sideA
+    property color colorB: theme.sideB
 
     readonly property bool ready: result !== null && result !== undefined && result.ok === true
     readonly property bool wide: width >= 820
@@ -24,8 +23,8 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: P.surface
-        border.color: P.line
+        color: theme.surface
+        border.color: theme.line
         border.width: 1
         radius: 4
     }
@@ -40,13 +39,13 @@ Item {
         radius: 3
         color: "transparent"
         border.width: 1
-        border.color: view.accentVerdict ? P.accent : P.line
+        border.color: view.accentVerdict ? theme.accent : theme.line
 
         Text {
             id: verdictText
             anchors.centerIn: parent
             text: view.ready ? view.result.verdict_label.toUpperCase() : ""
-            color: view.accentVerdict ? P.accent : P.textDim
+            color: view.accentVerdict ? theme.accent : theme.textDim
             font.pixelSize: 10
             font.letterSpacing: 3
             font.bold: true
