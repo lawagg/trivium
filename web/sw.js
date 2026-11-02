@@ -1,5 +1,8 @@
-/* Офлайн-кеш: после первого открытия приложение работает без сети. */
-const CACHE = 'trivium-v1';
+/* Офлайн-доступ + свежесть: сначала сеть, при её отсутствии — кеш.
+ * Кеш-первый вариант не годился: после обновления сайта браузер
+ * продолжал отдавать старые файлы.
+ */
+const CACHE = 'trivium-v2';
 const FILES = [
   './',
   './index.html',
@@ -28,15 +31,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  if (new URL(request.url).origin !== location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then(hit => {
-      if (hit) return hit;
-      return fetch(event.request).then(response => {
+    fetch(request)
+      .then(response => {
         const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        caches.open(CACHE).then(cache => cache.put(request, copy));
         return response;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+      .catch(() => caches.match(request).then(hit => hit || caches.match('./index.html')))
   );
 });

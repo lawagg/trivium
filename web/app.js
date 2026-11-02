@@ -30,6 +30,14 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  function toast(message) {
+    const box = document.createElement('div');
+    box.className = 'toast';
+    box.textContent = message;
+    document.body.append(box);
+    setTimeout(() => box.remove(), 7000);
+  }
+
   function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
@@ -68,9 +76,13 @@
     [-0.4714, -0.3333, -0.8165],
   ];
   const EDGES = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]];
+  const TILT = -0.32;
 
   let spin = 0.7;
-  let lastTs = 0;
+  let clock = 0;
+  let reducedMotion = false;
+  let morph = 0;          // 0 — фигура целиком, 1 — раскрыта вокруг вершины
+  let anchorIdx = -1;     // вершина, к которой раскрылись
   let hovered = -1;
   let nodes = [];
 
@@ -87,18 +99,51 @@
     return { w, h };
   }
 
-  function project(point, size) {
+  // положение вершины в закрытой фигуре
+  function projectPoint(point, cx, radius) {
     const cy = Math.cos(spin);
     const sy = Math.sin(spin);
     const x = point[0] * cy + point[2] * sy;
     const z = -point[0] * sy + point[2] * cy;
     const y = point[1];
-    const tilt = -0.32;
-    const y2 = y * Math.cos(tilt) - z * Math.sin(tilt);
-    const z2 = y * Math.sin(tilt) + z * Math.cos(tilt);
+    const y2 = y * Math.cos(TILT) - z * Math.sin(TILT);
+    const z2 = y * Math.sin(TILT) + z * Math.cos(TILT);
     const depth = 3.4;
-    const scale = Math.min(size.w, size.h) * 0.34 * (depth / (depth + z2));
-    return { x: size.w / 2 + x * scale, y: size.h / 2 - y2 * scale, scale };
+    const f = depth / (depth + z2);
+    return { x: cx + x * radius * f, y: 0, yRel: y2 * radius * f, z: z2, f };
+  }
+
+  function axisPoint(i, dock, orb, t) {
+    // три свободные вершины вращаются вокруг горизонтальной оси слева от опоры
+    if (i === anchorIdx) return { x: dock.x, y: dock.y };
+    const k = i < anchorIdx ? i : i - 1;
+    const ang = clock * 0.0005 + k * 2 * Math.PI / 3;
+    return {
+      x: dock.x - orb.dist - 55 * Math.cos(ang),
+      y: dock.y - orb.radius * Math.sin(ang),
+    };
+  }
+
+  function geometry(size) {
+    const panel = $('#panel');
+    const stageRect = canvas.getBoundingClientRect();
+    let dockX = size.w * 0.62;
+    let dockY = size.h / 2;
+    if (anchorIdx >= 0 && panel && !panel.hidden) {
+      const pr = panel.getBoundingClientRect();
+      dockX = pr.left - stageRect.left - 26;
+      dockY = pr.top - stageRect.top + pr.height / 2;
+    }
+    const dist = Math.max(120, Math.min(200, dockX * 0.38));
+    const radius = Math.min(140, size.h * 0.27);
+    const closedR = Math.min(size.w, size.h) * 0.34;
+    const openR = Math.min(150, size.h * 0.30);
+    return {
+      dock: { x: dockX, y: dockY },
+      orb: { dist, radius },
+      cx: size.w / 2 + (dockX - dist - size.w / 2) * morph,
+      radius: closedR + (openR - closedR) * morph,
+    };
   }
 
   function drawTetra() {
@@ -112,21 +157,34 @@
     const mute = cssVar('--text-mute');
     const line = cssVar('--line');
 
-    const pts = VERTS.map(v => project(v, size));
-    nodes = pts;
+    const geo = geometry(size);
+    const t = morph;
 
-    // направляющие окружности
-    ctx.save();
-    ctx.globalAlpha = 0.5;
-    ctx.strokeStyle = line;
-    ctx.lineWidth = 1;
-    const radius = Math.min(size.w, size.h) * 0.34;
-    [0.62, 1].forEach(k => {
-      ctx.beginPath();
-      ctx.ellipse(size.w / 2, size.h / 2, radius * k, radius * k * 0.44, 0, 0, Math.PI * 2);
-      ctx.stroke();
+    // направляющие — только в закрытой фигуре
+    if (t < 0.99) {
+      ctx.save();
+      ctx.globalAlpha = 0.5 * (1 - t);
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 1;
+      const r = geo.radius;
+      [0.62, 1].forEach(k => {
+        ctx.beginPath();
+        ctx.ellipse(geo.cx, size.h / 2, r * k, r * k * 0.44, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    nodes = VERTS.map((v, i) => {
+      const closed = projectPoint(v, geo.cx, geo.radius);
+      const closedY = size.h / 2 - closed.yRel;
+      if (t <= 0.001) return { x: closed.x, y: closedY };
+      const open = axisPoint(i, geo.dock, geo.orb, t);
+      return {
+        x: closed.x + (open.x - closed.x) * t,
+        y: closedY + (open.y - closedY) * t,
+      };
     });
-    ctx.restore();
 
     // рёбра
     ctx.strokeStyle = cssVar('--text');
@@ -134,14 +192,14 @@
     ctx.globalAlpha = 0.34;
     EDGES.forEach(e => {
       ctx.beginPath();
-      ctx.moveTo(pts[e[0]].x, pts[e[0]].y);
-      ctx.lineTo(pts[e[1]].x, pts[e[1]].y);
+      ctx.moveTo(nodes[e[0]].x, nodes[e[0]].y);
+      ctx.lineTo(nodes[e[1]].x, nodes[e[1]].y);
       ctx.stroke();
     });
     ctx.globalAlpha = 1;
 
     // вершины
-    pts.forEach((p, i) => {
+    nodes.forEach((p, i) => {
       const key = VERTEX_KEYS[i];
       const active = state.active === key;
       const hot = active || hovered === i;
@@ -156,11 +214,12 @@
 
       ctx.font = (hot ? '600 ' : '500 ') + '10px "Segoe UI", Roboto, sans-serif';
       ctx.fillStyle = hot ? accent : mute;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-      ctx.letterSpacing = '2px';
-      ctx.fillText(String(blockTitle(key)).toUpperCase(), p.x, p.y + 14);
-      ctx.letterSpacing = '0px';
+      ctx.textBaseline = 'middle';
+      const docked = morph > 0.5 && i === anchorIdx;
+      ctx.textAlign = docked ? 'right' : 'center';
+      ctx.fillText(String(blockTitle(key)).toUpperCase(),
+        docked ? p.x - 16 : p.x,
+        docked ? p.y : p.y + 20);
     });
   }
 
@@ -197,10 +256,21 @@
   function loop(ts) {
     const dt = lastTs ? Math.min(64, ts - lastTs) : 16;
     lastTs = ts;
-    spin += dt * 0.00034;
+    clock += dt;
+
+    const target = state.active ? 1 : 0;
+    if (morph !== target) {
+      const step = Math.min(1, dt / 140);
+      morph += (target - morph) * step;
+      if (Math.abs(target - morph) < 0.003) morph = target;
+    } else if (!state.active) {
+      spin += dt * 0.00034;
+    }
     drawTetra();
     requestAnimationFrame(loop);
   }
+
+  let lastTs = 0;
 
   /* ── панель блока ────────────────────────────────── */
   function positionsOf(kind) {
@@ -342,6 +412,8 @@
   function openBlock(key) {
     if (!BY_KEY[key]) return;
     state.active = key;
+    anchorIdx = VERTEX_KEYS.indexOf(key);
+    if (reducedMotion) morph = 1;
     renderPanel();
     renderInfo();
     // на телефоне пояснения занимают весь экран — показываем по кнопке «?»
@@ -352,6 +424,7 @@
 
   function closeBlock() {
     state.active = null;
+    if (reducedMotion) morph = 0;
     $('#panel').hidden = true;
     $('#info').hidden = true;
     $('#hint').classList.remove('off');
@@ -473,12 +546,14 @@
     renderResult();
     $('#result').hidden = false;
     $('#resultBtn').classList.add('active');
+    $('#resultBtn').textContent = 'скрыть результат';
   }
 
   function hideResult() {
     state.result = null;
     $('#result').hidden = true;
     $('#resultBtn').classList.remove('active');
+    $('#resultBtn').textContent = 'результат';
   }
 
   function sideList(holder, name, items, color) {
@@ -755,10 +830,6 @@
 
     $('#resultBtn').addEventListener('click', () => {
       if (state.result) { hideResult(); return; }
-      if (!$('#nameA').value.trim() || !$('#nameB').value.trim()) {
-        ask('Результат', 'Сначала введите названия обеих песен.', 'Понятно', null);
-        return;
-      }
       ask('Результат', 'Посчитать результат по выставленным фейдерам?', 'Посчитать', showResult);
     });
 
@@ -795,10 +866,25 @@
       if (state.result) drawRadar();
     });
 
+    if (params.get("demo")) {
+      window.__tri = {
+        state: state,
+        nodes: () => nodes,
+        morph: () => morph,
+        anchor: () => anchorIdx,
+        geo: () => geometry(fitCanvas(canvas, ctx)),
+      };
+    }
+
     const demo = params.get("demo");
     if (demo) applyDemo(demo);
 
+    window.addEventListener('error', e => {
+      toast('Ошибка: ' + (e.message || 'что-то пошло не так'));
+    });
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    reducedMotion = reduce.matches;
     if (reduce.matches) {
       drawTetra();
     } else {
