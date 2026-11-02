@@ -100,6 +100,8 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
       deviceScaleFactor: parts[2] || 1,
       mobile: true,
     });
+    await send('Page.navigate', { url });
+    await wait(1200);
   }
 
   if (process.env.WEB_REDUCED === '1') {
