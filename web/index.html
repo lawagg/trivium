@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Тривиум — система судейства двух песен">
+<title>Тривиум — система судейства</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#08080C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">ТРИВИУМ</div>
+  <button class="ghost small" id="themeBtn">светлая тема</button>
+</header>
+
+<section class="songs" id="songs">
+  <div class="song" data-side="a">
+    <div class="song-cap">ПЕСНЯ 1</div>
+    <input class="song-name" id="nameA" type="text" placeholder="Никнейм исполнителя" autocomplete="off" spellcheck="false">
+    <button class="ov-btn" id="ovBtnA" data-side="a">▾ ОВ —</button>
+  </div>
+  <div class="vs">vs</div>
+  <div class="song" data-side="b">
+    <div class="song-cap">ПЕСНЯ 2</div>
+    <input class="song-name" id="nameB" type="text" placeholder="Никнейм исполнителя" autocomplete="off" spellcheck="false">
+    <button class="ov-btn" id="ovBtnB" data-side="b">▾ ОВ —</button>
+  </div>
+</section>
+
+<main class="stage" id="stage">
+  <canvas class="tetra" id="tetra"></canvas>
+
+  <div class="blockbar" id="blockbar"></div>
+
+  <aside class="info" id="info" hidden>
+    <div class="info-head">
+      <div>
+        <div class="info-cap">ЧТО ЗНАЧИТ КРИТЕРИЙ</div>
+        <div class="info-title" id="infoTitle"></div>
+      </div>
+      <button class="icon" id="infoClose" title="Скрыть">×</button>
+    </div>
+    <div class="info-body" id="infoBody"></div>
+  </aside>
+
+  <section class="panel" id="panel" hidden>
+    <div class="panel-head">
+      <div>
+        <div class="panel-title" id="panelTitle"></div>
+        <div class="panel-sub" id="panelSub"></div>
+      </div>
+      <div class="panel-actions">
+        <button class="icon" id="panelInfo" title="Пояснить критерии">?</button>
+        <button class="icon" id="panelClose" title="Закрыть">×</button>
+      </div>
+    </div>
+    <div class="legend"><i class="dot a"></i>песня 1<span class="arrows">←→</span>песня 2<i class="dot b"></i></div>
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <div class="hint" id="hint">нажмите на вершину — из неё раскроется блок</div>
+
+  <section class="result" id="result" hidden>
+    <div class="result-cards" id="resultCards"></div>
+    <div class="result-mid">
+      <div class="result-side" id="sideA"></div>
+      <canvas class="radar" id="radar"></canvas>
+      <div class="result-side" id="sideB"></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <aside class="help" id="help" hidden>
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">АЛГОРИТМ СУДЕЙСТВА</div>
+        <div class="panel-sub">как пользоваться формой</div>
+      </div>
+      <button class="icon" id="helpClose" title="Закрыть">×</button>
+    </div>
+    <div class="help-body" id="helpBody"></div>
+  </aside>
+</main>
+
+<footer class="bottom">
+  <div class="credit">
+    Разработчик: Lawanda
+    <a class="icon-link" href="https://vk.com/lawandanebanano" target="_blank" rel="noreferrer" title="ВКонтакте">VK</a>
+    <a class="icon-link" href="mailto:lawandabsnbtz@gmail.com" title="Почта">✉</a>
+    <a class="icon-link" href="https://t.me/lawandabsnbtz" target="_blank" rel="noreferrer" title="Телеграм">TG</a>
+  </div>
+  <div class="spacer"></div>
+  <button class="ghost" id="helpBtn">как судить?</button>
+  <button class="ghost" id="resetBtn">сброс</button>
+  <button class="primary" id="resultBtn">результат</button>
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-text" id="modalText"></div>
+    <div class="modal-actions">
+      <button class="ghost" id="modalCancel">Отмена</button>
+      <button class="primary" id="modalOk">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div class="popover" id="ovPop" hidden>
+  <div class="pop-title" id="ovPopTitle">ОБЩЕЕ ВПЕЧАТЛЕНИЕ</div>
+  <div class="pop-sub">0–10, шаг 1. На победителя не влияет, кроме ничьей.</div>
+  <input type="range" id="ovRange" min="0" max="10" step="1" value="0">
+  <div class="pop-ticks" id="ovTicks"></div>
+  <div class="pop-actions">
+    <button class="ghost small" id="ovClear">сбросить</button>
+    <div class="spacer"></div>
+    <button class="primary small" id="ovDone">готово</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="scoring.js"></script>
+<script src="app.js"></script>
+<script>
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () { /* офлайн-кеш не критичен */ });
+    });
+  }
+</script>
+</body>
+</html>
