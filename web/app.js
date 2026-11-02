@@ -85,6 +85,8 @@
   let anchorIdx = -1;     // вершина, к которой раскрылись
   let hovered = -1;
   let nodes = [];
+  let drawn = null;    // отрисованные позиции вершин
+  let frameMs = 16;    // длительность последнего кадра
 
   function fitCanvas(item, context) {
     const dpr = window.devicePixelRatio || 1;
@@ -175,7 +177,7 @@
       ctx.restore();
     }
 
-    nodes = VERTS.map((v, i) => {
+    const targets = VERTS.map((v, i) => {
       const closed = projectPoint(v, geo.cx, geo.radius);
       const closedY = size.h / 2 - closed.yRel;
       if (t <= 0.001) return { x: closed.x, y: closedY };
@@ -185,6 +187,19 @@
         y: closedY + (open.y - closedY) * t,
       };
     });
+
+    // Позиции догоняют цели, а не перескакивают: при переключении блока
+    // вершины перестраиваются на глазах, как в десктопной версии.
+    if (!drawn) {
+      drawn = targets.map(p => ({ x: p.x, y: p.y }));
+    } else {
+      const k = 1 - Math.exp(-frameMs / 110);
+      for (let i = 0; i < targets.length; i++) {
+        drawn[i].x += (targets[i].x - drawn[i].x) * k;
+        drawn[i].y += (targets[i].y - drawn[i].y) * k;
+      }
+    }
+    nodes = drawn;
 
     // рёбра
     ctx.strokeStyle = cssVar('--text');
@@ -257,6 +272,7 @@
     const dt = lastTs ? Math.min(64, ts - lastTs) : 16;
     lastTs = ts;
     clock += dt;
+    frameMs = dt;
 
     const target = state.active ? 1 : 0;
     if (morph !== target) {
