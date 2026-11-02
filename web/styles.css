@@ -666,3 +666,12 @@ body.compact .spacer { display: none; }
 body.compact .result-cards { order: 1; }
 body.compact .verdict { order: 2; }
 body.compact .result-mid { order: 3; }
+
+/* открытые пояснения занимают всё место: тетраэдр — украшение,
+   при чтении он только отнимает высоту */
+body.compact.info-open .tetra { display: none; }
+body.compact.info-open .info {
+  flex: 1 1 auto;
+  min-height: 140px;
+  margin-bottom: 8px;
+}

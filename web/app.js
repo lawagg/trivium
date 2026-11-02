@@ -410,6 +410,10 @@
     drawTetra();
   }
 
+  function syncInfoClass() {
+    document.body.classList.toggle('info-open', !$('#info').hidden);
+  }
+
   function renderInfo() {
     const block = BY_KEY[state.active];
     if (!block) return;
@@ -439,6 +443,7 @@
       });
     });
     $('#info').hidden = false;
+    syncInfoClass();
   }
 
   function openBlock(key) {
@@ -450,6 +455,7 @@
     renderInfo();
     // на телефоне пояснения занимают весь экран — показываем по кнопке «?»
     if (state.compact) document.querySelector("#info").hidden = true;
+    syncInfoClass();
     if (state.compact) $('#blockbar').classList.add('has-active');
     markBlockbar();
   }
@@ -460,6 +466,7 @@
 
     $('#panel').hidden = true;
     $('#info').hidden = true;
+    syncInfoClass();
     $('#hint').classList.remove('off');
     drawTetra();
     markBlockbar();
@@ -840,6 +847,7 @@
     $('#infoClose').addEventListener('click', closeBlock);
     $('#panelInfo').addEventListener('click', () => {
       $('#info').hidden = !$('#info').hidden;
+      syncInfoClass();
     });
 
     $('#helpBtn').addEventListener('click', () => {
