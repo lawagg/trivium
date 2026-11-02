@@ -92,6 +92,16 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await send('Runtime.enable');
   await send('Page.enable');
 
+  if (process.env.WEB_EMULATE) {
+    const parts = process.env.WEB_EMULATE.split('x').map(Number);
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: parts[0],
+      height: parts[1],
+      deviceScaleFactor: parts[2] || 1,
+      mobile: true,
+    });
+  }
+
   if (process.env.WEB_REDUCED === '1') {
     await send('Emulation.setEmulatedMedia', {
       features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],

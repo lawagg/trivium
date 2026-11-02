@@ -115,10 +115,17 @@
   }
 
   function axisPoint(i, dock, orb, t) {
-    // три свободные вершины вращаются вокруг горизонтальной оси слева от опоры
     if (i === anchorIdx) return { x: dock.x, y: dock.y };
     const k = i < anchorIdx ? i : i - 1;
     const ang = clock * 0.0005 + k * 2 * Math.PI / 3;
+    if (orb.vertical) {
+      // телефон: опора сверху, три вершины крутятся под ней
+      return {
+        x: dock.x + orb.radius * Math.cos(ang),
+        y: dock.y + orb.dist + orb.radius * 0.55 * Math.sin(ang),
+      };
+    }
+    // десктоп: три свободные вершины вращаются вокруг горизонтальной оси слева
     return {
       x: dock.x - orb.dist - 55 * Math.cos(ang),
       y: dock.y - orb.radius * Math.sin(ang),
@@ -135,13 +142,22 @@
       dockX = pr.left - stageRect.left - 26;
       dockY = pr.top - stageRect.top + pr.height / 2;
     }
-    const dist = Math.max(120, Math.min(200, dockX * 0.38));
-    const radius = Math.min(140, size.h * 0.27);
+    const vertical = state.compact;
+    if (vertical) {
+      dockX = size.w / 2;
+      dockY = size.h * 0.18;
+    }
+    const dist = vertical
+      ? Math.min(78, size.h * 0.34)
+      : Math.max(120, Math.min(200, dockX * 0.38));
+    const radius = vertical
+      ? Math.min(86, size.w * 0.22, size.h * 0.38)
+      : Math.min(140, size.h * 0.27);
     const closedR = Math.min(size.w, size.h) * 0.34;
     const openR = Math.min(150, size.h * 0.30);
     return {
       dock: { x: dockX, y: dockY },
-      orb: { dist, radius },
+      orb: { dist, radius, vertical },
       cx: size.w / 2 + (dockX - dist - size.w / 2) * morph,
       radius: closedR + (openR - closedR) * morph,
     };
@@ -641,14 +657,15 @@
     const item = $('#radar');
     if (!res || !item) return;
 
-    const box = item.parentElement;
-    const height = Math.max(220, box.clientHeight - 16);
-    const size = Math.min(height, 520);
+    // размер задаётся стилями, иначе смена размера холста сама вызывает
+    // ResizeObserver и получается бесконечный цикл уведомлений
+    const size = Math.round(item.clientWidth);
+    if (!size) return;
     const dpr = window.devicePixelRatio || 1;
-    item.style.width = size + 'px';
-    item.style.height = size + 'px';
-    item.width = Math.round(size * dpr);
-    item.height = Math.round(size * dpr);
+    if (item.width !== Math.round(size * dpr) || item.height !== Math.round(size * dpr)) {
+      item.width = Math.round(size * dpr);
+      item.height = Math.round(size * dpr);
+    }
     const c = item.getContext('2d');
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, size, size);
@@ -882,8 +899,14 @@
     document.addEventListener('pointerdown', closeOnOutside);
 
     if (window.ResizeObserver) {
+      let radarPending = false;
       const observer = new ResizeObserver(() => {
-        if (state.result) drawRadar();
+        if (radarPending || !state.result) return;
+        radarPending = true;
+        requestAnimationFrame(() => {
+          radarPending = false;
+          if (state.result) drawRadar();
+        });
       });
       observer.observe($('#result'));
     }
