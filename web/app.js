@@ -844,7 +844,11 @@
     });
 
     $('#panelClose').addEventListener('click', closeBlock);
-    $('#infoClose').addEventListener('click', closeBlock);
+    // крестик в пояснениях убирает только их — блок остаётся открытым
+    $('#infoClose').addEventListener('click', () => {
+      $('#info').hidden = true;
+      syncInfoClass();
+    });
     $('#panelInfo').addEventListener('click', () => {
       $('#info').hidden = !$('#info').hidden;
       syncInfoClass();
