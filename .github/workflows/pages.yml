@@ -1,4 +1,4 @@
-name: pages
+﻿name: pages
 
 on:
   push:
@@ -28,6 +28,8 @@ jobs:
 
       - name: Подготовка Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Загрузка статики
         uses: actions/upload-pages-artifact@v3
