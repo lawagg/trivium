@@ -80,7 +80,6 @@
 
   let spin = 0.7;
   let clock = 0;
-  let reducedMotion = false;
   let morph = 0;          // 0 — фигура целиком, 1 — раскрыта вокруг вершины
   let anchorIdx = -1;     // вершина, к которой раскрылись
   let hovered = -1;
@@ -279,7 +278,7 @@
       const step = Math.min(1, dt / 140);
       morph += (target - morph) * step;
       if (Math.abs(target - morph) < 0.003) morph = target;
-    } else if (!state.active && !reducedMotion) {
+    } else if (!state.active) {
       spin += dt * 0.00034;
     }
     drawTetra(true);
@@ -914,9 +913,6 @@
 
     document.body.classList.remove('booting');
 
-    // «Уменьшение движения» отключает только декоративное вращение фигуры:
-    // перестроение вершин при смене блока — это обратная связь, её оставляем.
-    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     requestAnimationFrame(loop);
   }
 

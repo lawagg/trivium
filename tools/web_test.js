@@ -92,6 +92,12 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await send('Runtime.enable');
   await send('Page.enable');
 
+  if (process.env.WEB_REDUCED === '1') {
+    await send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
+    });
+  }
+
   // ждём, пока страница и скрипты реально поднимутся
   const readyExpr = "document.readyState === 'complete' && document.body && !document.body.classList.contains('booting')";
   for (let i = 0; i < 60; i++) {
