@@ -17,7 +17,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     '--hide-scrollbars',
     `--remote-debugging-port=${PORT}`,
     '--user-data-dir=' + require('os').tmpdir() + '\\trivium-cdp',
-    '--window-size=1440,900',
+    '--window-size=' + (process.env.WEB_SIZE || '1440,900'),
     url,
   ], { stdio: 'ignore' });
 

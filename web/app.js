@@ -375,6 +375,7 @@
     });
     $('#panel').hidden = false;
     $('#hint').classList.add('off');
+    document.body.classList.add('panel-open');
     drawTetra();
   }
 
@@ -424,6 +425,7 @@
 
   function closeBlock() {
     state.active = null;
+    document.body.classList.remove('panel-open');
     if (reducedMotion) morph = 0;
     $('#panel').hidden = true;
     $('#info').hidden = true;
@@ -545,6 +547,7 @@
     closeHelp();
     renderResult();
     $('#result').hidden = false;
+    document.body.classList.add('has-result');
     $('#resultBtn').classList.add('active');
     $('#resultBtn').textContent = 'скрыть результат';
   }
@@ -552,6 +555,7 @@
   function hideResult() {
     state.result = null;
     $('#result').hidden = true;
+    document.body.classList.remove('has-result');
     $('#resultBtn').classList.remove('active');
     $('#resultBtn').textContent = 'результат';
   }
@@ -612,7 +616,9 @@
     chip.textContent = res.verdict_label;
     chip.classList.toggle('accent', res.kind !== 'draw');
 
-    drawRadar();
+    // размер контейнера известен только после вёрстки — иначе радар
+    // получается крошечным до первого пересчёта (например, при смене темы)
+    requestAnimationFrame(function () { drawRadar(); });
   }
 
   function drawRadar() {
@@ -859,6 +865,13 @@
       closeOv();
     };
     document.addEventListener('pointerdown', closeOnOutside);
+
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(() => {
+        if (state.result) drawRadar();
+      });
+      observer.observe($('#result'));
+    }
 
     window.addEventListener('resize', () => {
       updateMode();

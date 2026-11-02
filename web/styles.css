@@ -176,6 +176,11 @@ button.icon:hover { color: var(--text); }
   padding-bottom: 26px;
 }
 
+/* результат заменяет поля ввода, как в десктопной версии */
+body.has-result .songs { display: none; }
+
+body.has-result .stage { margin-top: 10px; }
+
 /* ── сцена ───────────────────────────────────────────── */
 .stage {
   position: relative;
@@ -542,7 +547,17 @@ body.compact .stage {
   overflow-y: auto;
   overflow-x: hidden;
 }
+/* на телефоне фигура видна, пока блок не открыт: места хватает,
+   а открытая панель с фейдерами важнее */
 body.compact .tetra { display: none; }
+body.compact:not(.panel-open) .tetra {
+  display: block;
+  position: static;
+  width: 100%;
+  height: 42%;
+  min-height: 180px;
+  flex: 1;
+}
 body.compact .hint { display: none; }
 
 body.compact .blockbar {
