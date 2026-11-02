@@ -34,6 +34,10 @@ html[data-theme="light"] {
 
 * { box-sizing: border-box; }
 
+/* пока скрипты не загрузились, кнопки не реагируют — иначе нажатие
+   в первые мгновения выглядит как «ничего не происходит» */
+body.booting button { opacity: .45; pointer-events: none; }
+
 /* атрибут hidden должен побеждать любые display в правилах ниже */
 [hidden] { display: none !important; }
 

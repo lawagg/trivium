@@ -883,6 +883,8 @@
       toast('Ошибка: ' + (e.message || 'что-то пошло не так'));
     });
 
+    document.body.classList.remove('booting');
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     reducedMotion = reduce.matches;
     if (reduce.matches) {
