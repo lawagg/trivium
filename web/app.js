@@ -279,7 +279,7 @@
       const step = Math.min(1, dt / 140);
       morph += (target - morph) * step;
       if (Math.abs(target - morph) < 0.003) morph = target;
-    } else if (!state.active) {
+    } else if (!state.active && !reducedMotion) {
       spin += dt * 0.00034;
     }
     drawTetra(true);
@@ -430,7 +430,7 @@
     if (!BY_KEY[key]) return;
     state.active = key;
     anchorIdx = VERTEX_KEYS.indexOf(key);
-    if (reducedMotion) { morph = 1; drawn = null; }
+
     renderPanel();
     renderInfo();
     // на телефоне пояснения занимают весь экран — показываем по кнопке «?»
@@ -442,7 +442,7 @@
   function closeBlock() {
     state.active = null;
     document.body.classList.remove('panel-open');
-    if (reducedMotion) { morph = 0; drawn = null; }
+
     $('#panel').hidden = true;
     $('#info').hidden = true;
     $('#hint').classList.remove('off');
@@ -914,13 +914,10 @@
 
     document.body.classList.remove('booting');
 
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    reducedMotion = reduce.matches;
-    if (reduce.matches) {
-      drawTetra();
-    } else {
-      requestAnimationFrame(loop);
-    }
+    // «Уменьшение движения» отключает только декоративное вращение фигуры:
+    // перестроение вершин при смене блока — это обратная связь, её оставляем.
+    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(loop);
   }
 
   if (document.readyState === 'loading') {

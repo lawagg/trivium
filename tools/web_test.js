@@ -1,4 +1,4 @@
-// Прогоняет JS-сценарий в настоящем Chrome через DevTools Protocol.
+﻿// Прогоняет JS-сценарий в настоящем Chrome через DevTools Protocol.
 // Запуск: node tools/web_test.js <url> <сценарий.js> [снимок.png] [селектор для настоящего клика]
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -15,15 +15,22 @@ const realClick = process.argv[5];
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
 (async () => {
-  const chrome = spawn(CHROME, [
-    '--headless=new',
+  const headless = process.env.WEB_HEADED !== '1';
+  const args = [
     '--disable-gpu',
     '--hide-scrollbars',
     '--remote-debugging-port=' + PORT,
     '--user-data-dir=' + os.tmpdir() + '\\trivium-cdp',
     '--window-size=' + (process.env.WEB_SIZE || '1440,900'),
     url,
-  ], { stdio: 'ignore' });
+  ];
+  if (headless) {
+    args.unshift('--headless=new');
+  } else {
+    args.unshift('--window-position=-32000,-32000', '--no-first-run', '--no-default-browser-check');
+  }
+
+  const chrome = spawn(CHROME, args, { stdio: 'ignore' });
 
   let page = null;
   for (let i = 0; i < 40 && !page; i++) {
