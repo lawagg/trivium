@@ -148,7 +148,7 @@
     };
   }
 
-  function drawTetra() {
+  function drawTetra(advance) {
     if (!ctx) return;
     const size = fitCanvas(canvas, ctx);
     if (!size) return;
@@ -192,7 +192,7 @@
     // вершины перестраиваются на глазах, как в десктопной версии.
     if (!drawn) {
       drawn = targets.map(p => ({ x: p.x, y: p.y }));
-    } else {
+    } else if (advance) {
       const k = 1 - Math.exp(-frameMs / 110);
       for (let i = 0; i < targets.length; i++) {
         drawn[i].x += (targets[i].x - drawn[i].x) * k;
@@ -282,7 +282,7 @@
     } else if (!state.active) {
       spin += dt * 0.00034;
     }
-    drawTetra();
+    drawTetra(true);
     requestAnimationFrame(loop);
   }
 
@@ -430,7 +430,7 @@
     if (!BY_KEY[key]) return;
     state.active = key;
     anchorIdx = VERTEX_KEYS.indexOf(key);
-    if (reducedMotion) morph = 1;
+    if (reducedMotion) { morph = 1; drawn = null; }
     renderPanel();
     renderInfo();
     // на телефоне пояснения занимают весь экран — показываем по кнопке «?»
@@ -442,7 +442,7 @@
   function closeBlock() {
     state.active = null;
     document.body.classList.remove('panel-open');
-    if (reducedMotion) morph = 0;
+    if (reducedMotion) { morph = 0; drawn = null; }
     $('#panel').hidden = true;
     $('#info').hidden = true;
     $('#hint').classList.remove('off');
