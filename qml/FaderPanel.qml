@@ -6,6 +6,8 @@ Item {
     id: panel
 
     property var blockData: null
+    // сохранённые положения фейдеров: ключ критерия -> [-1; 1]
+    property var positions: ({})
     property int fullWidth: 720
     property int fullHeight: 340
     property bool open: false
@@ -178,7 +180,8 @@ Item {
                         anchors.top: parent.top
                         anchors.topMargin: 26
                         height: 32
-                        value: 0
+                        value: (row.crit && panel.positions && panel.positions[row.crit.key] !== undefined)
+                               ? panel.positions[row.crit.key] : 0
                         leftColor: theme.sideA
                         rightColor: theme.sideB
                         onMoved: (v) => panel.faderMoved(row.crit.key, v)

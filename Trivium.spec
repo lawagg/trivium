@@ -55,7 +55,7 @@ a = Analysis(
     ["main.py"],
     pathex=[str(ROOT)],
     binaries=[],
-    datas=[(str(ROOT / "qml"), "qml")],
+    datas=[(str(ROOT / "qml"), "qml"), (str(ROOT / "assets"), "assets")],
     hiddenimports=["trivium.bridge", "trivium.scoring", "trivium.texts"],
     hookspath=[],
     hooksconfig={},

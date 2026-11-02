@@ -64,6 +64,8 @@ def result_payload():
 def step1():
     root.setProperty("nameA", "Трек 1")
     root.setProperty("nameB", "Трек 2")
+    root.setProperty("basePos", {"image": -0.6, "rhythm": 0.35, "technique": 0.7})
+    root.setProperty("artPos", {"depth": -0.4})
     QTimer.singleShot(500, step2)
 
 

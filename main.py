@@ -112,6 +112,18 @@ def main(argv=None) -> int:
     app.setApplicationName("Trivium")
     app.setApplicationDisplayName("Тривиум — система судейства")
 
+    # иконка окна и панели задач
+    try:
+        from PySide6.QtGui import QIcon
+
+        for name in ("trivium.ico", "trivium.icns", "trivium_256.png"):
+            icon_path = BASE_DIR / "assets" / name
+            if icon_path.exists():
+                app.setWindowIcon(QIcon(str(icon_path)))
+                break
+    except Exception:
+        pass
+
     from trivium.bridge import JudgingBridge
     from trivium.theme import Theme
 

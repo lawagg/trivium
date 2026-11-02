@@ -532,6 +532,7 @@ Window {
                 fullHeight: stageHost.panelH
                 open: win.activeBlock >= 0 && win.panelShown
                 blockData: win.panelData
+                positions: win.panelData && win.panelData.kind === "art" ? win.artPos : win.basePos
                 gen: win.gen
                 infoVisible: win.showInfo
                 onInfoToggleRequested: win.infoHidden = !win.infoHidden
